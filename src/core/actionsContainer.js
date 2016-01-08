@@ -12,7 +12,7 @@ module.exports = (function (){
     }
     return false;
   }
-
+  
   //the function below is to expose to other module
   function addAction (action){
     if (!(action instanceof $Action)){

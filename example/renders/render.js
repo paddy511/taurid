@@ -1,5 +1,3 @@
-
-
 function Render(){
 
   this.initHtml = function (){

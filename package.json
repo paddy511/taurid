@@ -20,5 +20,8 @@
     "gulp-webpack": "*",
     "source-map-loader": "^0.1.5",
     "webpack": "^1.12.10"
+  },
+  "dependencies": {
+    "q": "^1.4.1"
   }
 }

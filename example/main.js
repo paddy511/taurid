@@ -1,4 +1,6 @@
 var render = new Render();
-var eventHandler = new EventHandler(render);
+var eventHandler = new EventHandler();
+var ajaxService = new AjaxService();
 
-taurid.execAction("init", render, eventHandler);
+registerActions(render, eventHandler, ajaxService);
+taurid.execAction("init");

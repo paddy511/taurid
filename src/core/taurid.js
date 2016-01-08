@@ -1,10 +1,14 @@
 const actionsContainer = require("./actionsContainer");
 const $Action = require("./Action");
+const $http = require("../extensions/$http");
+const $q = require("q")
 
 let taurid = new Object();
 
 //lib API
 taurid.$Action = $Action;
+taurid.$q = $q;
+taurid.$http = $http;
 
 taurid.registerAction = function (actionName, callback) {
   let _action = new $Action(actionName, callback);

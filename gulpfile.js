@@ -34,3 +34,7 @@ gulp.task('build-dev', () => {
 		}))
 		.pipe(gulp.dest('dist'));
 });
+
+gulp.task('watch-src', () => {
+	return gulp.watch("src/**/*.js", ["build-dev"]);
+});
