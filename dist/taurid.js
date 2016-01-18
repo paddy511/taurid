@@ -218,8 +218,8 @@
 	  }
 	
 	  _createClass($Http, [{
-	    key: "send",
-	    value: function send(_ref) {
+	    key: "openXMLHttpRequest",
+	    value: function openXMLHttpRequest(_ref) {
 	      var _ref$url = _ref.url;
 	      var url = _ref$url === undefined ? "" : _ref$url;
 	      var _ref$method = _ref.method;
@@ -281,6 +281,49 @@
 	      xhr.responseType = responseType;
 	      xhr.send(JSON.stringify(data));
 	      return defer.promise;
+	    }
+	  }, {
+	    key: "send",
+	    value: function send(options) {
+	      return this.openXMLHttpRequest(options);
+	    }
+	  }, {
+	    key: "get",
+	    value: function get(url) {
+	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	
+	      options.method = "GET";
+	      options.url = url;
+	      return this.openXMLHttpRequest(options);
+	    }
+	  }, {
+	    key: "delete",
+	    value: function _delete(url) {
+	      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	
+	      options.method = "DELETE";
+	      options.url = url;
+	      return this.openXMLHttpRequest(options);
+	    }
+	  }, {
+	    key: "post",
+	    value: function post(url, data) {
+	      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	
+	      options.method = "POST";
+	      options.url = url;
+	      options.data = data;
+	      return this.openXMLHttpRequest(options);
+	    }
+	  }, {
+	    key: "patch",
+	    value: function patch(url, data) {
+	      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	
+	      options.method = "PATCH";
+	      options.url = url;
+	      options.data = data;
+	      return this.openXMLHttpRequest(options);
 	    }
 	  }]);
 	
