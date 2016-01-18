@@ -6,7 +6,7 @@ class $Http {
   constructor() {}
 
   openXMLHttpRequest({
-    url = "",
+      url = "",
       method = "GET",
       async = true,
       data = null,
