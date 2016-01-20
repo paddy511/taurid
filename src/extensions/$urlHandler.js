@@ -41,6 +41,12 @@ class $UrlHandler {
     return query;
   }
 
+  //lastIndex start with 0;
+  getSlashParmaFromLast(url, lastIndex = 0) {
+    let _urlSlashArr = url.slice(0, url.indexOf("?")).split("/");
+    let index = _urlSlashArr.length - 1 - lastIndex;
+    return _urlSlashArr[index];
+  }
 }
 
 module.exports = new $UrlHandler();
