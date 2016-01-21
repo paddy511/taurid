@@ -1,6 +1,7 @@
 const actionsContainer = require("./actionsContainer");
 const $Action = require("./Action");
 const $http = require("../extensions/$http");
+const $urlHandler = require("../extensions/$UrlHandler");
 const $q = require("q")
 
 let taurid = new Object();
@@ -9,6 +10,7 @@ let taurid = new Object();
 taurid.$Action = $Action;
 taurid.$q = $q;
 taurid.$http = $http;
+taurid.$urlHandler = $urlHandler;
 
 taurid.registerAction = function (actionName, callback) {
   let _action = new $Action(actionName, callback);
