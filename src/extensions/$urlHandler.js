@@ -3,7 +3,7 @@ class $UrlHandler {
 
   }
 
-  joinUrlAndQuery(url, query) {
+  joinUrlAndQuery(url = "", query) {
     if (!(query instanceof Object)){
       throw "the paramater of query must be a Object!";
     }
@@ -26,7 +26,7 @@ class $UrlHandler {
     return url;
   }
 
-  getQueryFromUrl(url) {
+  getQueryFromUrl(url = "") {
     let query = {};
     if (url.indexOf('?') == -1) {
       return query;
@@ -42,10 +42,24 @@ class $UrlHandler {
   }
 
   //lastIndex start with 0;
-  getSlashParmaFromLast(url, lastIndex = 0) {
+  getSlashParmaByLastIndex(url = "", lastIndex = 0) {
     let _urlSlashArr = url.slice(0, url.indexOf("?")).split("/");
     let index = _urlSlashArr.length - 1 - lastIndex;
     return _urlSlashArr[index];
+  }
+
+  getCurrentQuery(){
+    if(!window){
+      throw "the object window is not existed!";
+    }
+    return this.getQueryFromUrl(window.location.href);
+  }
+
+  getCurrentSlashParmaByLastIndex(lastIndex = 0){
+    if(!window){
+      throw "the object window is not existed!";
+    }
+    return this.getSlashParmaByLastIndex(window.location.href, lastIndex);
   }
 }
 
