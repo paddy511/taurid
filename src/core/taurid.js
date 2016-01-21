@@ -2,7 +2,7 @@ const actionsContainer = require("./actionsContainer");
 const $Action = require("./Action");
 const $http = require("../extensions/$http");
 const $urlHandler = require("../extensions/$UrlHandler");
-const $q = require("q")
+const $q = require("q");
 
 let taurid = new Object();
 
