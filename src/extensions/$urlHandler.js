@@ -15,11 +15,12 @@ class $UrlHandler {
     }
 
     // join the query to the url
-    for (let key of Object.keys(query)) {
+    for (let key in query) {
+
       if (_questionMark) {
-        url += "&" + key + "=" + query[key];
+        url += "&" + key + "=" + encodeURI(query[key]);
       } else {
-        url += "?" + key + "=" + query[key];
+        url += "?" + key + "=" + encodeURI(query[key]);
         _questionMark = true;
       }
     }
@@ -34,9 +35,13 @@ class $UrlHandler {
 
     let queryStr = url.slice(url.indexOf("?") + 1);
     let queryArr = queryStr.split("&");
-    for (let _q of queryArr) {
-      let _qArr = _q.split("=");
-      query[_qArr[0]] = _qArr[1];
+    // for (let _q of queryArr) {
+    //   let _qArr = _q.split("=");
+    //   query[_qArr[0]] = _qArr[1];
+    // }
+    for (var i = 0; i < queryArr.length; i++) {
+      let _qArr = queryArr[i].split("=");
+      query[_qArr[0]] = decodeURI(_qArr[1]);
     }
     return query;
   }

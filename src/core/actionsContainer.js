@@ -5,14 +5,14 @@ module.exports = (function (){
   let actions = [ ];
 
   function getActionByName(actionName) {
-    for (let act of actions) {
-      if(act.name === actionName){
-        return act;
+    for (let i=0; i < actions.length; i++) {
+      if(actions[i].name === actionName){
+        return actions[i];
       }
     }
     return false;
   }
-  
+
   //the function below is to expose to other module
   function addAction (action){
     if (!(action instanceof $Action)){

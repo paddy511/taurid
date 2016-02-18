@@ -51,7 +51,7 @@
 	if (module && module.exports) {
 	  module.exports = taurid;
 	}
-	if (__webpack_require__(9)) {
+	if (__webpack_require__(14)) {
 	  !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	    return taurid;
 	  }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -85,8 +85,12 @@
 	
 	var actionsContainer = __webpack_require__(3);
 	var $Action = __webpack_require__(4);
-	var $http = __webpack_require__(5);
-	var $q = __webpack_require__(6);
+	var $componentGenerator = __webpack_require__(5);
+	var $http = __webpack_require__(7);
+	var $urlHandler = __webpack_require__(11);
+	var $unitConverter = __webpack_require__(12);
+	var $stringHandler = __webpack_require__(13);
+	var $q = __webpack_require__(8);
 	
 	var taurid = new Object();
 	
@@ -94,7 +98,11 @@
 	taurid.$Action = $Action;
 	taurid.$q = $q;
 	taurid.$http = $http;
+	taurid.$urlHandler = $urlHandler;
+	taurid.$unitConverter = $unitConverter;
+	taurid.$stringHandler = $stringHandler;
 	
+	//action
 	taurid.registerAction = function (actionName, callback) {
 	  var _action = new $Action(actionName, callback);
 	  actionsContainer.addAction(_action);
@@ -114,6 +122,52 @@
 	  return actionsContainer.getAction(actionName).callback;
 	};
 	
+	//DomComponent
+	/*
+	 * @param
+	 *
+	 * opt: Object
+	 *
+	 *    name: the component name;(neccessary);
+	 *    getDom: the html template you want render ;
+	 *    bindDomEvent: the event you want bind html after dom render;
+	 */
+	taurid.registerComponent = function (opt) {
+	  $componentGenerator.generateComponent(opt);
+	};
+	
+	/*
+	 * @param
+	 *
+	 * componentName: the component you want to instantiate;
+	 * componentId: the index to find component;
+	 * positionDomId: where you want place component in html;
+	 *
+	 */
+	taurid.instantiateComponent = function (componentName, componentId, positionDomId) {
+	  return $componentGenerator.instantiateComponent(componentName, componentId, positionDomId);
+	};
+	
+	/*
+	 * @param
+	 *
+	 * componentId: the index to find component;
+	 *
+	 */
+	taurid.getComponentById = function (componentId) {
+	  return $componentGenerator.getComponentById(componentId);
+	};
+	
+	/*
+	 * @param
+	 *
+	 * componentId: the index to find component;
+	 *
+	 */
+	taurid.distoryComponentById = function (componentId) {
+	  $componentGenerator.distoryComponentById(componentId);
+	};
+	
 	module.exports = taurid;
 
 /***/ },
@@ -129,33 +183,11 @@
 	  var actions = [];
 	
 	  function getActionByName(actionName) {
-	    var _iteratorNormalCompletion = true;
-	    var _didIteratorError = false;
-	    var _iteratorError = undefined;
-	
-	    try {
-	      for (var _iterator = actions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	        var act = _step.value;
-	
-	        if (act.name === actionName) {
-	          return act;
-	        }
-	      }
-	    } catch (err) {
-	      _didIteratorError = true;
-	      _iteratorError = err;
-	    } finally {
-	      try {
-	        if (!_iteratorNormalCompletion && _iterator.return) {
-	          _iterator.return();
-	        }
-	      } finally {
-	        if (_didIteratorError) {
-	          throw _iteratorError;
-	        }
+	    for (var i = 0; i < actions.length; i++) {
+	      if (actions[i].name === actionName) {
+	        return actions[i];
 	      }
 	    }
-	
 	    return false;
 	  }
 	
@@ -206,11 +238,210 @@
 
 	"use strict";
 	
+	var $DomComponent = __webpack_require__(6);
+	
+	module.exports = function () {
+	
+	  var _componentGenerator = new Object();
+	  var _componentNameArray = [];
+	  var _componentContainer = {};
+	
+	  function checkComponentIsExist(_componentName) {
+	    for (var i = 0; i < _componentNameArray.length; i++) {
+	      if (_componentNameArray[i] === _componentName) {
+	        return true;
+	      }
+	    }
+	    return false;
+	  }
+	
+	  function checkComponentIdIsExist(_componentId) {
+	    for (var key in _componentContainer) {
+	      if (key === _componentId) {
+	        return true;
+	      }
+	    }
+	    return false;
+	  }
+	
+	  //=========== export ===========
+	  function generateComponent(opt) {
+	    if (!(opt instanceof Object)) {
+	      throw "this opt you pass in must be a object!";
+	    }
+	    if (!(typeof opt.name === "string")) {
+	      throw "the component name must be a string!";
+	    }
+	
+	    if (checkComponentIsExist(opt.name)) {
+	      throw "the component has existed!";
+	    }
+	
+	    var componentName = opt.name;
+	    var getDom = opt.getDom || "function(){return ''}";
+	    var bindDomEvent = opt.bindDomEvent || "function (){}";
+	
+	    // let classStr = "function $" + componentName + "(positionDomId){$DomComponent.apply(this,arguments);};$" + componentName + ".prototype = new $DomComponent();$" + componentName +
+	    // ".prototype.constructor = $" + componentName + ";$" +  componentName + ".prototype.getDom=" + getDom + ";$" +  componentName + ".prototype.bindDomEvent=" + bindDomEvent + ";";
+	    // window.eval(classStr);
+	
+	    function classContructor() {
+	      var classTpl = function classTpl(positionDomId) {
+	        $DomComponent.apply(this, arguments);
+	      };
+	
+	      classTpl.prototype = new $DomComponent();
+	      classTpl.prototype.constructor = classTpl;
+	      classTpl.prototype.getDom = getDom || function () {
+	        return '';
+	      };
+	      classTpl.prototype.bindDomEvent = bindDomEvent || function () {};
+	
+	      return classTpl;
+	    }
+	
+	    _componentGenerator["$" + componentName] = classContructor();
+	    _componentNameArray.push(componentName);
+	  }
+	
+	  function instantiateComponent(componentName, componentId, positionDomId) {
+	    if (!(typeof componentName === "string")) {
+	      throw "the component name must be a string!";
+	    }
+	    if (typeof componentId === "undefined") {
+	      throw "the componentId is undefined!";
+	    }
+	    if (!checkComponentIsExist(componentName)) {
+	      throw "the component is not existed!";
+	    }
+	    if (checkComponentIdIsExist(componentId)) {
+	      throw "the componentId has existed!";
+	    }
+	
+	    var taurid_componentName = "$" + componentName;
+	
+	    var _component = new _componentGenerator[taurid_componentName](positionDomId);
+	    _component.setModel({});
+	    _componentContainer[componentId] = _component;
+	    return _component;
+	  }
+	
+	  function getComponentById(componentId) {
+	    if (!checkComponentIdIsExist(componentId)) {
+	      throw "the componentId is not existed!";
+	    }
+	    return _componentContainer[componentId];
+	  }
+	
+	  function distoryComponentById(componentId) {
+	    if (!checkComponentIdIsExist(componentId)) {
+	      throw "the componentId is not existed!";
+	    }
+	    _componentContainer[componentId].destroyDom();
+	    delete _componentContainer[componentId];
+	  }
+	
+	  return {
+	    "generateComponent": generateComponent,
+	    "instantiateComponent": instantiateComponent,
+	    "getComponentById": getComponentById,
+	    "distoryComponentById": distoryComponentById
+	  };
+	}();
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var $q = __webpack_require__(6);
+	module.exports = function () {
+	  function $DomComponent(positionDomId) {
+	    _classCallCheck(this, $DomComponent);
+	
+	    this.domStr = "";
+	    this.positionDomId = positionDomId;
+	    this.model = {};
+	  }
+	
+	  _createClass($DomComponent, [{
+	    key: "setModel",
+	    value: function setModel(_model) {
+	      if (!(_model instanceof Object)) {
+	        throw "the model must be a object";
+	      }
+	      this.model = _model;
+	      this.renderDom();
+	    }
+	  }, {
+	    key: "renderDom",
+	    value: function renderDom() {
+	      this.domStr = this.getDom();
+	      document.getElementById(this.positionDomId).innerHTML = this.domStr;
+	      this.bindDomEvent();
+	    }
+	  }, {
+	    key: "destroyDom",
+	    value: function destroyDom() {
+	      document.getElementById(this.positionDomId).innerHTML = "";
+	    }
+	  }, {
+	    key: "getRootElement",
+	    value: function getRootElement() {
+	      return document.getElementById(this.positionDomId);
+	    }
+	  }, {
+	    key: "getElementByTid",
+	    value: function getElementByTid(tid) {
+	
+	      function recursiveDom(_domEle) {
+	        if (_domEle.attributes) {
+	          for (var i = 0; i < _domEle.attributes.length; i++) {
+	            if (_domEle.attributes[i].name === "tid") {
+	              if (_domEle.attributes[i].value === tid) {
+	                return _domEle;
+	              }
+	            }
+	          }
+	        }
+	        for (var _i = 0; _i < _domEle.childNodes.length; _i++) {
+	          var chirdNode = _domEle.childNodes[_i];
+	          var _dom = recursiveDom(chirdNode);
+	          if (_dom) {
+	            return _dom;
+	          }
+	        }
+	      }
+	      return recursiveDom(document.getElementById(this.positionDomId));
+	    }
+	  }, {
+	    key: "getDom",
+	    value: function getDom() {
+	      return "";
+	    }
+	  }, {
+	    key: "bindDomEvent",
+	    value: function bindDomEvent() {}
+	  }]);
+	
+	  return $DomComponent;
+	}();
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var $q = __webpack_require__(8);
 	
 	var $Http = function () {
 	  function $Http() {
@@ -242,44 +473,38 @@
 	
 	      xhr.onload = function () {
 	        if (xhr.status.toString().substr(0, 1) == '2' || xhr.status.toString().substr(0, 1) == '3') {
-	          defer.resolve(xhr.response);
+	          if (typeof xhr.response === "string") {
+	            defer.resolve(JSON.parse(xhr.response));
+	          } else {
+	            defer.resolve(xhr.response);
+	          }
 	        } else if (xhr.status.toString().substr(0, 1) == '4' || xhr.status.toString().substr(0, 1) == '5') {
-	          defer.reject(xhr.response);
+	          if (typeof xhr.response === "string") {
+	            defer.reject(JSON.parse(xhr.response));
+	          } else {
+	            defer.reject(xhr.response);
+	          }
 	        }
 	      };
 	
 	      xhr.open(method, url, async);
-	      xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+	      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	      xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
-	      var _iteratorNormalCompletion = true;
-	      var _didIteratorError = false;
-	      var _iteratorError = undefined;
 	
-	      try {
-	        for (var _iterator = headers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var headerObj = _step.value;
-	
-	          xhr.setRequestHeader(headerObj.header, headerObj.value);
-	        }
-	      } catch (err) {
-	        _didIteratorError = true;
-	        _iteratorError = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion && _iterator.return) {
-	            _iterator.return();
-	          }
-	        } finally {
-	          if (_didIteratorError) {
-	            throw _iteratorError;
-	          }
-	        }
+	      for (var i = 0; i < headers.length; i++) {
+	        xhr.setRequestHeader(headers[i].header, headers[i].value);
 	      }
-	
 	      xhr.withCredentials = withCredentials;
 	      xhr.timeout = timeout;
 	      xhr.responseType = responseType;
-	      xhr.send(JSON.stringify(data));
+	      var formData = [];
+	      for (var obj_key in data) {
+	        formData.push(obj_key + "=" + encodeURI(data[[obj_key]]));
+	      }
+	      var form = formData.join("&");
+	
+	      xhr.send(form);
+	      // xhr.send(JSON.stringify(data));
 	      return defer.promise;
 	    }
 	  }, {
@@ -333,7 +558,7 @@
 	module.exports = new $Http();
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {// vim:ts=4:sts=4:sw=4:
@@ -2385,10 +2610,10 @@
 	
 	});
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(8).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(10).setImmediate))
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -2485,10 +2710,10 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(7).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(9).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -2564,10 +2789,203 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).setImmediate, __webpack_require__(8).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10).setImmediate, __webpack_require__(10).clearImmediate))
 
 /***/ },
-/* 9 */
+/* 11 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var $UrlHandler = function () {
+	  function $UrlHandler() {
+	    _classCallCheck(this, $UrlHandler);
+	  }
+	
+	  _createClass($UrlHandler, [{
+	    key: "joinUrlAndQuery",
+	    value: function joinUrlAndQuery() {
+	      var url = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+	      var query = arguments[1];
+	
+	      if (!(query instanceof Object)) {
+	        throw "the paramater of query must be a Object!";
+	      }
+	      //whether the url have a question mark, default is false
+	      var _questionMark = false;
+	      //judge the url
+	      if (url.indexOf("?") !== -1) {
+	        _questionMark = true;
+	      }
+	
+	      // join the query to the url
+	      for (var key in query) {
+	
+	        if (_questionMark) {
+	          url += "&" + key + "=" + encodeURI(query[key]);
+	        } else {
+	          url += "?" + key + "=" + encodeURI(query[key]);
+	          _questionMark = true;
+	        }
+	      }
+	      return url;
+	    }
+	  }, {
+	    key: "getQueryFromUrl",
+	    value: function getQueryFromUrl() {
+	      var url = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+	
+	      var query = {};
+	      if (url.indexOf('?') == -1) {
+	        return query;
+	      }
+	
+	      var queryStr = url.slice(url.indexOf("?") + 1);
+	      var queryArr = queryStr.split("&");
+	      // for (let _q of queryArr) {
+	      //   let _qArr = _q.split("=");
+	      //   query[_qArr[0]] = _qArr[1];
+	      // }
+	      for (var i = 0; i < queryArr.length; i++) {
+	        var _qArr = queryArr[i].split("=");
+	        query[_qArr[0]] = decodeURI(_qArr[1]);
+	      }
+	      return query;
+	    }
+	
+	    //lastIndex start with 0;
+	
+	  }, {
+	    key: "getSlashParmaByLastIndex",
+	    value: function getSlashParmaByLastIndex() {
+	      var url = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+	      var lastIndex = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	
+	      var _urlSlashArr = url.slice(0, url.indexOf("?")).split("/");
+	      var index = _urlSlashArr.length - 1 - lastIndex;
+	      return _urlSlashArr[index];
+	    }
+	  }, {
+	    key: "getCurrentQuery",
+	    value: function getCurrentQuery() {
+	      if (!window) {
+	        throw "the object window is not existed!";
+	      }
+	      return this.getQueryFromUrl(window.location.href);
+	    }
+	  }, {
+	    key: "getCurrentSlashParmaByLastIndex",
+	    value: function getCurrentSlashParmaByLastIndex() {
+	      var lastIndex = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+	
+	      if (!window) {
+	        throw "the object window is not existed!";
+	      }
+	      return this.getSlashParmaByLastIndex(window.location.href, lastIndex);
+	    }
+	  }]);
+	
+	  return $UrlHandler;
+	}();
+	
+	module.exports = new $UrlHandler();
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var $unitConverter = function () {
+	  function $unitConverter() {
+	    _classCallCheck(this, $unitConverter);
+	  }
+	
+	  _createClass($unitConverter, [{
+	    key: "convertRemToPx",
+	    value: function convertRemToPx(_rem) {
+	      var _fs = getComputedStyle(window.document.documentElement)['font-size'].split("px")[0];
+	      var _pxStr = _fs * _rem + "px";
+	      return _pxStr;
+	    }
+	  }]);
+	
+	  return $unitConverter;
+	}();
+	
+	module.exports = new $unitConverter();
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var $stringHandler = function () {
+	    function $stringHandler() {
+	        _classCallCheck(this, $stringHandler);
+	    }
+	
+	    _createClass($stringHandler, [{
+	        key: "getLength",
+	        value: function getLength(str) {
+	            ///<summary>获得字符串实际长度，中文2，英文1</summary>
+	            ///<param name="str">要获得长度的字符串</param>
+	            var realLength = 0,
+	                len = str.length,
+	                charCode = -1;
+	            for (var i = 0; i < len; i++) {
+	                charCode = str.charCodeAt(i);
+	                if (charCode >= 0 && charCode <= 128) realLength += 1;else realLength += 2;
+	            }
+	            return realLength;
+	        }
+	    }, {
+	        key: "cutstr",
+	        value: function cutstr(str, len) {
+	            var str_length = 0;
+	            var str_len = 0;
+	            var str_cut = new String();
+	            str_len = str.length;
+	            for (var i = 0; i < str_len; i++) {
+	                var a = str.charAt(i);
+	                str_length++;
+	                if (escape(a).length > 4) {
+	                    //中文字符的长度经编码之后大于4
+	                    str_length++;
+	                }
+	                str_cut = str_cut.concat(a);
+	                if (str_length >= len) {
+	                    str_cut = str_cut.concat("...");
+	                    return str_cut;
+	                }
+	            }
+	            //如果给定字符串小于指定长度，则返回源字符串；
+	            if (str_length < len) {
+	                return str;
+	            }
+	        }
+	    }]);
+	
+	    return $stringHandler;
+	}();
+	
+	module.exports = new $stringHandler();
+
+/***/ },
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
