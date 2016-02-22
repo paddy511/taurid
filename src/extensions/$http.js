@@ -3,7 +3,13 @@ const $q = require("q");
 
 class $Http {
 
-  constructor() {}
+  constructor(config = {}) {
+    this.contentType = config.contentType || "application/x-www-form-urlencoded";
+  }
+
+  setContentType(_contentType = "application/x-www-form-urlencoded"){
+    this.contentType = _contentType;
+  }
 
   openXMLHttpRequest({
       url = "",
@@ -35,23 +41,40 @@ class $Http {
     };
 
     xhr.open(method, url, async);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
     xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
+    var _contentType = this.contentType
 
     for (let i = 0; i < headers.length; i++) {
-      xhr.setRequestHeader(headers[i].header, headers[i].value);
+      if(headers[i].header ===  "Content-Type"){
+        if(headers[i].value.indexOf("application/x-www-form-urlencoded") !== -1){
+          _contentType = "application/x-www-form-urlencoded";
+        }else if (headers[i].value.indexOf("application/json") !== -1) {
+          _contentType = "application/json";
+        }
+      }else {
+        xhr.setRequestHeader(headers[i].header, headers[i].value);
+      }  
     }
     xhr.withCredentials = withCredentials;
     xhr.timeout = timeout;
     xhr.responseType = responseType;
-    var formData = [];
-    for (var obj_key in data) {
-    	formData.push(obj_key + "=" + encodeURI(data[[obj_key]]));
-    }
-    var form = formData.join("&");
 
-    xhr.send(form);
-    // xhr.send(JSON.stringify(data));
+    switch (_contentType) {
+      case "application/x-www-form-urlencoded":
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var formData = [];
+        for (var obj_key in data) {
+          formData.push(obj_key + "=" + encodeURI(data[[obj_key]]));
+        }
+        var form = formData.join("&");
+        xhr.send(form);
+        break;
+      case "application/json":
+        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhr.send(JSON.stringify(data));
+        break;
+    }
+
     return defer.promise;
   }
 

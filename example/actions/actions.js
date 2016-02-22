@@ -1,6 +1,7 @@
 function registerActions (render, eventHandler, ajaxService){
 
   taurid.registerAction("init", function () {
+    taurid.$http.setContentType("application/json");
     ajaxService.getDataFromServer2()
     .then(ajaxService.getDataFromServer)
     .then(function(data){

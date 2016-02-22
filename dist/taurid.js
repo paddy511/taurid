@@ -445,10 +445,21 @@
 	
 	var $Http = function () {
 	  function $Http() {
+	    var config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
 	    _classCallCheck(this, $Http);
+	
+	    this.contentType = config.contentType || "application/x-www-form-urlencoded";
 	  }
 	
 	  _createClass($Http, [{
+	    key: "setContentType",
+	    value: function setContentType() {
+	      var _contentType = arguments.length <= 0 || arguments[0] === undefined ? "application/x-www-form-urlencoded" : arguments[0];
+	
+	      this.contentType = _contentType;
+	    }
+	  }, {
 	    key: "openXMLHttpRequest",
 	    value: function openXMLHttpRequest(_ref) {
 	      var _ref$url = _ref.url;
@@ -488,23 +499,40 @@
 	      };
 	
 	      xhr.open(method, url, async);
-	      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	      xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
+	      var _contentType = this.contentType;
 	
 	      for (var i = 0; i < headers.length; i++) {
-	        xhr.setRequestHeader(headers[i].header, headers[i].value);
+	        if (headers[i].header === "Content-Type") {
+	          if (headers[i].value.indexOf("application/x-www-form-urlencoded") !== -1) {
+	            _contentType = "application/x-www-form-urlencoded";
+	          } else if (headers[i].value.indexOf("application/json") !== -1) {
+	            _contentType = "application/json";
+	          }
+	        } else {
+	          xhr.setRequestHeader(headers[i].header, headers[i].value);
+	        }
 	      }
 	      xhr.withCredentials = withCredentials;
 	      xhr.timeout = timeout;
 	      xhr.responseType = responseType;
-	      var formData = [];
-	      for (var obj_key in data) {
-	        formData.push(obj_key + "=" + encodeURI(data[[obj_key]]));
-	      }
-	      var form = formData.join("&");
 	
-	      xhr.send(form);
-	      // xhr.send(JSON.stringify(data));
+	      switch (_contentType) {
+	        case "application/x-www-form-urlencoded":
+	          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+	          var formData = [];
+	          for (var obj_key in data) {
+	            formData.push(obj_key + "=" + encodeURI(data[[obj_key]]));
+	          }
+	          var form = formData.join("&");
+	          xhr.send(form);
+	          break;
+	        case "application/json":
+	          xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+	          xhr.send(JSON.stringify(data));
+	          break;
+	      }
+	
 	      return defer.promise;
 	    }
 	  }, {
