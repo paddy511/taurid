@@ -47,7 +47,7 @@ class $UrlHandler {
   }
 
   //lastIndex start with 0;
-  getSlashParmaByLastIndex(url = "", lastIndex = 0) {
+  getSlashParmaFromLast(url = "", lastIndex = 0) {
     let _urlSlashArr = url.slice(0, url.indexOf("?")).split("/");
     let index = _urlSlashArr.length - 1 - lastIndex;
     return _urlSlashArr[index];
@@ -60,7 +60,7 @@ class $UrlHandler {
     return this.getQueryFromUrl(window.location.href);
   }
 
-  getCurrentSlashParmaByLastIndex(lastIndex = 0){
+  getCurrentSlashParmaFromLast(lastIndex = 0){
     if(!window){
       throw "the object window is not existed!";
     }
