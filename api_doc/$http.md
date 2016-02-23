@@ -39,7 +39,8 @@
 
 
 - arguments: 
-		 1. options
+		
+		1. options
 		    
 			type: object
 	
@@ -71,11 +72,12 @@
 
 
 - arguments: 
-		 1. url
+		
+		1. url
 		    
 			type: string
 	
-		 2. options [optional]	
+		2. options [optional]	
 		     
 			type: object
 			
@@ -102,11 +104,12 @@
 
 
 - arguments: 
-		 1. url
+		
+		1. url
 		    
 			type: string
 	
-		 2. options [optional]	
+		2. options [optional]	
 		     
 			type: object
 			
@@ -133,15 +136,16 @@
 
 
 - arguments: 
-		 1. url
+		
+		1. url
 		    
 			type: string
 		
-		 2. data
+		2. data
 		   
 			type: object
 	
-		 3. options [optional]	
+		3. options [optional]	
 		     
 			type: object
 			
@@ -168,15 +172,16 @@
 
 
 - arguments: 
-		 1. url
+		
+		1. url
 		    
 			type: string
 		
-		 2. data
+		2. data
 		   
 			type: object
 	
-		 3. options [optional]	
+		3. options [optional]	
 		     
 			type: object
 			
