@@ -22,7 +22,8 @@
 
 
 - arguments: 
-		 1. _contentType
+
+		1. _contentType
 		    
 			type: string
 	
@@ -56,9 +57,11 @@
 				}
 
 - return
+		
 		promise
 
 - describe
+		
 		send xhr http request.
 		If the http status code start with 3 or 2, it will regard it as success and resolve the data.
 		If the http status code start with 4 or 5, it will regard it as error and reject the error.
@@ -87,9 +90,11 @@
 				}	
 
 - return
+		
 		promise
 
 - describe
+		
 		same as send method.
 
 >#### 4. ***delete()***
@@ -116,9 +121,11 @@
 				}	
 
 - return
+		
 		promise
 
 - describe
+		
 		same as send method.
 
 >#### 5. ***post()***
@@ -149,9 +156,11 @@
 				}	
 
 - return
+		
 		promise
 
 - describe
+		
 		same as send method.
 
 >#### 6. ***patch()***
@@ -182,7 +191,9 @@
 				}	
 
 - return
+		
 		promise
 
 - describe
+		
 		same as send method.
